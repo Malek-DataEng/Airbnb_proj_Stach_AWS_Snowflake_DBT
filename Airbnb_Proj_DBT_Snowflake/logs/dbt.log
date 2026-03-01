@@ -1,0 +1,77 @@
+[0m16:59:51.988737 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001A0EE2B21E0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001A0EE5113D0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001A0EE5134A0>]}
+
+
+============================== 16:59:52.048892 | 83bc61b2-8098-47ba-b19d-867a3f17c7b7 ==============================
+[0m16:59:52.048892 [info ] [MainThread]: Running with dbt=1.11.6
+[0m16:59:52.050900 [debug] [MainThread]: running dbt with arguments {'version_check': 'True', 'no_print': 'None', 'static_parser': 'True', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'printer_width': '80', 'write_json': 'True', 'introspect': 'True', 'log_cache_events': 'False', 'empty': 'None', 'cache_selected_only': 'False', 'log_format': 'default', 'debug': 'False', 'fail_fast': 'False', 'partial_parse': 'True', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'profiles_dir': 'C:\\Users\\roeda\\.dbt', 'invocation_command': 'dbt init', 'indirect_selection': 'eager', 'use_colors': 'True', 'use_experimental_parser': 'False', 'log_path': 'logs'}
+[0m17:00:27.904697 [debug] [MainThread]: Starter project path: C:\Users\roeda\Airbnb_Proj_DBT_Snowflake\.venv\Lib\site-packages\dbt\include\starter_project
+[0m17:00:27.922943 [info ] [MainThread]: 
+Your new dbt project "airbnb_proj_dbt_snowflake" was created!
+
+For more information on how to configure the profiles.yml file,
+please consult the dbt documentation here:
+
+  https://docs.getdbt.com/docs/configure-your-profile
+
+One more thing:
+
+Need help? Don't hesitate to reach out to us via GitHub issues or on Slack:
+
+  https://community.getdbt.com/
+
+Happy modeling!
+
+[0m17:00:27.924951 [info ] [MainThread]: Setting up your profile.
+[0m17:00:38.939433 [debug] [MainThread]: Snowflake adapter: Setting snowflake.connector to ERROR (file logging only)
+[0m17:00:38.939433 [debug] [MainThread]: Snowflake adapter: Setting botocore to ERROR (file logging only)
+[0m17:00:38.941451 [debug] [MainThread]: Snowflake adapter: Setting boto3 to ERROR (file logging only)
+[0m17:02:12.660095 [info ] [MainThread]: Profile airbnb_proj_dbt_snowflake written to C:\Users\roeda\.dbt\profiles.yml using target's profile_template.yml and your supplied values. Run 'dbt debug' to validate the connection.
+[0m17:02:12.665545 [debug] [MainThread]: Command `dbt init` succeeded at 17:02:12.665545 after 140.89 seconds
+[0m17:02:12.666857 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001A0EFB89D30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001A0EFC9F830>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x000001A0F06FEE40>]}
+[0m17:02:12.669246 [debug] [MainThread]: Flushing usage events
+[0m17:02:13.771591 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m14:30:35.908736 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000012B8EB342F0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000012B8F1C94C0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000012B8F099070>]}
+
+
+============================== 14:30:35.920865 | e6b3706e-112f-405f-a0dc-767dfdc19a10 ==============================
+[0m14:30:35.920865 [info ] [MainThread]: Running with dbt=1.11.6
+[0m14:30:35.922118 [debug] [MainThread]: running dbt with arguments {'version_check': 'True', 'no_print': 'None', 'static_parser': 'True', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'printer_width': '80', 'write_json': 'True', 'introspect': 'True', 'log_cache_events': 'False', 'empty': 'False', 'cache_selected_only': 'False', 'fail_fast': 'False', 'debug': 'False', 'log_format': 'default', 'partial_parse': 'True', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'profiles_dir': 'C:\\Users\\roeda\\.dbt', 'invocation_command': 'dbt build', 'indirect_selection': 'eager', 'use_colors': 'True', 'use_experimental_parser': 'False', 'log_path': 'logs'}
+[0m14:30:35.922706 [error] [MainThread]: Encountered an error:
+Runtime Error
+  No dbt_project.yml found at expected path C:\Users\roeda\Airbnb_Proj_DBT_Snowflake\dbt_project.yml
+  Verify that each entry within packages.yml (and their transitive dependencies) contains a file named dbt_project.yml
+  
+[0m14:30:35.923714 [debug] [MainThread]: Command `dbt build` failed at 14:30:35.923714 after 0.21 seconds
+[0m14:30:35.923714 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000012B8F099070>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000012B8F71DD90>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000012B8F43B350>]}
+[0m14:30:35.924714 [debug] [MainThread]: Flushing usage events
+[0m14:30:37.020724 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m14:31:04.375975 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000246DBAFDD00>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000246DF9EDBE0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000246DF9EDA30>]}
+
+
+============================== 14:31:04.384542 | 6a594520-82a0-487f-b640-ec99d830d274 ==============================
+[0m14:31:04.384542 [info ] [MainThread]: Running with dbt=1.11.6
+[0m14:31:04.386528 [debug] [MainThread]: running dbt with arguments {'static_parser': 'True', 'no_print': 'None', 'version_check': 'True', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'printer_width': '80', 'write_json': 'True', 'introspect': 'True', 'log_cache_events': 'False', 'empty': 'False', 'cache_selected_only': 'False', 'fail_fast': 'False', 'debug': 'False', 'log_format': 'default', 'profiles_dir': 'C:\\Users\\roeda\\.dbt', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'partial_parse': 'True', 'invocation_command': 'dbt run', 'use_colors': 'True', 'indirect_selection': 'eager', 'use_experimental_parser': 'False', 'log_path': 'logs'}
+[0m14:31:04.387526 [error] [MainThread]: Encountered an error:
+Runtime Error
+  No dbt_project.yml found at expected path C:\Users\roeda\Airbnb_Proj_DBT_Snowflake\dbt_project.yml
+  Verify that each entry within packages.yml (and their transitive dependencies) contains a file named dbt_project.yml
+  
+[0m14:31:04.390527 [debug] [MainThread]: Command `dbt run` failed at 14:31:04.390527 after 0.24 seconds
+[0m14:31:04.392034 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000246DF60ABD0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000246DF44D640>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x00000246DF498FB0>]}
+[0m14:31:04.392034 [debug] [MainThread]: Flushing usage events
+[0m14:31:05.654396 [debug] [MainThread]: An error was encountered while trying to flush usage events
+[0m14:31:55.240780 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'start', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018D6149AAE0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018D5DE4D580>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018D61499430>]}
+
+
+============================== 14:31:55.246808 | e31c7dc1-361a-4084-b374-fd9f6111870b ==============================
+[0m14:31:55.246808 [info ] [MainThread]: Running with dbt=1.11.6
+[0m14:31:55.247809 [debug] [MainThread]: running dbt with arguments {'static_parser': 'True', 'no_print': 'None', 'version_check': 'True', 'target_path': 'None', 'warn_error_options': 'WarnErrorOptionsV2(error=[], warn=[], silence=[])', 'printer_width': '80', 'write_json': 'True', 'empty': 'False', 'log_cache_events': 'False', 'introspect': 'True', 'cache_selected_only': 'False', 'fail_fast': 'False', 'debug': 'False', 'log_format': 'default', 'partial_parse': 'True', 'send_anonymous_usage_stats': 'True', 'quiet': 'False', 'warn_error': 'None', 'profiles_dir': 'C:\\Users\\roeda\\.dbt', 'invocation_command': 'dbt run', 'use_colors': 'True', 'indirect_selection': 'eager', 'use_experimental_parser': 'False', 'log_path': 'logs'}
+[0m14:31:55.247809 [error] [MainThread]: Encountered an error:
+Runtime Error
+  No dbt_project.yml found at expected path C:\Users\roeda\Airbnb_Proj_DBT_Snowflake\dbt_project.yml
+  Verify that each entry within packages.yml (and their transitive dependencies) contains a file named dbt_project.yml
+  
+[0m14:31:55.248809 [debug] [MainThread]: Command `dbt run` failed at 14:31:55.248809 after 0.19 seconds
+[0m14:31:55.249809 [debug] [MainThread]: Sending event: {'category': 'dbt', 'action': 'invocation', 'label': 'end', 'context': [<snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018D61596C30>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018D619AE7B0>, <snowplow_tracker.self_describing_json.SelfDescribingJson object at 0x0000018D61B57A40>]}
+[0m14:31:55.249809 [debug] [MainThread]: Flushing usage events
+[0m14:31:56.430087 [debug] [MainThread]: An error was encountered while trying to flush usage events
