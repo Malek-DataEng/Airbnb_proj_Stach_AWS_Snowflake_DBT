@@ -1,3 +1,4 @@
+--explore macro
 select 
     listing_id, 
     host_id, 
