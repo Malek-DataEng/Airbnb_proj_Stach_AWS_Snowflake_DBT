@@ -1,9 +1,10 @@
--- This is a test to check if the source is working
--- It will return all the bookings with a booking amount less than 0
--- If it returns any rows, it means the source is not working
+-- Tester la validité des données source 
+-- Elle retourne tous les bookings avec un booking_amount ou nights_booked inférieur ou égal à 0
+-- Si elle retourne des lignes, cela signifie que le source n'est pas fonctionnel
 
 select 
     booking_amount 
 from 
     {{ source('staging', 'bookings') }}
-where booking_amount < 0
+where booking_amount <= 0
+or nights_booked <= 0

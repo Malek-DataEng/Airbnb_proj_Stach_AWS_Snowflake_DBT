@@ -11,8 +11,10 @@ select
     bedrooms,
     bathrooms,
     price_per_night_tag,
-    listing_created_at
+    listing_created_at,
+    listing_etl_loaded_at
 from {{ ref('obt') }}
 )
 
 select * from listings
+qualify {{duplicate_row("listing_id", "listing_etl_loaded_at")}}

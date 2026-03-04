@@ -1,10 +1,12 @@
 
 {{ config(materialized='incremental') }}
 
-select * from {{source('staging', 'bookings')}}
+select 
+    *,
+    TO_VARCHAR(CURRENT_TIMESTAMP(), 'YYYY-MM-DD"T"HH24:MI:SS') as etl_loaded_at
 
-{% if is_incremental() %}
-    where CREATED_AT > ( select coalesce(max(CREATED_AT), '1900-01-01') from {{ this }} )
-{% endif %}
+from {{source('staging', 'bookings')}}
+
+where {{ incremental('created_at') }} 
 
 qualify {{ duplicate_row('booking_id', 'created_at') }}

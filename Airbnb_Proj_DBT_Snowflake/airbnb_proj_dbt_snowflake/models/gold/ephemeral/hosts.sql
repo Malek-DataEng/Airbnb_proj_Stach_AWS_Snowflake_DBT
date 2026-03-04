@@ -6,9 +6,11 @@ select
     host_name,
     host_since,
     is_superhost,
-    response_rate_quality,
-    host_created_at
+    host_response_segment,
+    host_created_at,
+    host_etl_loaded_at
 from {{ ref('obt') }}
 )
 
 select * from hosts
+qualify {{duplicate_row("host_id", "host_etl_loaded_at")}}

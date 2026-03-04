@@ -1,7 +1,7 @@
 {% set configs = [ 
     { 
         "table": "airbnb.gold.obt",
-        "columns": "obt.booking_id,obt.listing_id,obt.host_id,obt.total_booking_amount,obt.service_fee,obt.cleaning_fee,obt.accommodates,obt.price_per_night,obt.created_at",
+        "columns": "obt.booking_id,obt.listing_id,obt.host_id,obt.booking_amount,obt.nights_booked,obt.booking_price_per_night,obt.service_fee,obt.cleaning_fee,obt.total_fees, obt.total_booking_value,obt.net_revenue,obt.accommodates,obt.price_per_night,obt.price_per_person, obt.host_tenure_years,obt.superhost_flag,obt.response_rate, obt.etl_loaded_at",
         "alisa": "obt"
     },
     {
