@@ -25,6 +25,7 @@ jobs:
           pip install snowflake-connector-python
 
       - name: Install dbt packages
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt deps
 
       - name: Run pipeline if new data
