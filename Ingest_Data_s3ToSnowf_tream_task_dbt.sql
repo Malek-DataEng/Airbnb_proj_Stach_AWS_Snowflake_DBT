@@ -177,13 +177,20 @@ SELECT 1;
 
 -- Creer une task qui declanche les model dbt (silver > gold) 
 -- si stream detect des nouveaux insert
-CREATE OR REPLACE TASK task_run_dbt
-WAREHOUSE =  WH_TRANSFORM_DBT
-AFTER task_bronze_done
+CREATE OR REPLACE TASK AIRBNB.PIPELINE.task_run_dbt
+WAREHOUSE = WH_TRANSFORM_DBT
+AFTER AIRBNB.PIPELINE.task_bronze_done
 AS
-CALL run_dbt_pipeline();
-
-
+INSERT INTO AIRBNB.PIPELINE.RUN_DBT_FLAG (
+    run_time,
+    processed,
+    dbt_status
+)
+VALUES (
+    CURRENT_TIMESTAMP,
+    FALSE,
+    'PENDING'
+);
 
 -- Resume selon ordre du fils au parent
 ALTER TASK task_run_dbt         RESUME; --1
@@ -195,15 +202,4 @@ ALTER TASK task_bronze_bookings RESUME; --3
 ALTER TASK task_root            RESUME; --4
 
 
- 
--- Stored procedure avec EXECUTE IMMEDIATE
-CREATE OR REPLACE PROCEDURE run_dbt_pipeline()
-  RETURNS STRING
-  LANGUAGE SQL
-AS
-BEGIN
-  -- Exécuter les scripts SQL du repo Git
-  EXECUTE IMMEDIATE FROM @AIRBNB_REPO/branches/main/dbt/target/run/silver_bookings.sql;
-  EXECUTE IMMEDIATE FROM @AIRBNB_REPO/branches/main/dbt/target/run/gold_bookings.sql;
-  RETURN 'dbt pipeline completed';
-END;
+SELECT * FROM AIRBNB.PIPELINE.RUN_DBT_FLAG;
