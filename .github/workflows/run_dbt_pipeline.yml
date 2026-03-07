@@ -30,7 +30,12 @@ jobs:
         
       - name: Setup dbt profile
         run: mkdir -p ~/.dbt
-        
+
+      - name: Debug folders
+        run: |
+          pwd
+          ls -R
+    
       - name: Run pipeline if new data
         run: |
           cd Airbnb_proj_Stach_AWS_Snowflake_DBT
