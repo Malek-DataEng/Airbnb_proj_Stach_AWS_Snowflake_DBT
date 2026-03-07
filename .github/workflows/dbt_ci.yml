@@ -29,6 +29,7 @@ jobs:
         run: dbt deps
 
       - name: Run dbt debug
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt debug
         env:
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
@@ -36,4 +37,5 @@ jobs:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
 
       - name: Run dbt tests
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt test
