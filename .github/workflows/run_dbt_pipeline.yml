@@ -27,7 +27,10 @@ jobs:
       - name: Install dbt packages
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt deps
-
+        
+      - name: Setup dbt profile
+        run: mkdir -p ~/.dbt
+        
       - name: Run pipeline if new data
         run: python Airbnb_proj_Stach_AWS_Snowflake_DBT/scripts/run_dbt_if_needed.py
         env:
