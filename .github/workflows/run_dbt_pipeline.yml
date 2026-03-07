@@ -32,7 +32,10 @@ jobs:
         run: mkdir -p ~/.dbt
         
       - name: Run pipeline if new data
-        run: python Airbnb_proj_Stach_AWS_Snowflake_DBT/scripts/run_dbt_if_needed.py
+        run: |
+          cd Airbnb_proj_Stach_AWS_Snowflake_DBT
+          python scripts/run_dbt_if_needed.py
+          
         env:
           env:
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
