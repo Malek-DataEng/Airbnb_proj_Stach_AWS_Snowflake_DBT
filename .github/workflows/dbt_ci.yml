@@ -25,6 +25,7 @@ jobs:
           pip install dbt-snowflake
 
       - name: Install project dependencies
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt deps
 
       - name: Run dbt debug
