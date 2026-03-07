@@ -1,4 +1,5 @@
 # import des librairies
+import os
 import snowflake.connector
 import subprocess
 
