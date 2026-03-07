@@ -3,6 +3,10 @@ import os
 import snowflake.connector
 import subprocess
 
+# ensure dbt runs from project root
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+os.chdir(PROJECT_DIR)
+
 conn = snowflake.connector.connect(
     user=os.environ["SNOWFLAKE_USER"],
     password=os.environ["SNOWFLAKE_PASSWORD"],
