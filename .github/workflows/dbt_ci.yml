@@ -24,6 +24,25 @@ jobs:
         run: |
           pip install dbt-snowflake
 
+      - name: Create dbt profile
+        run: |
+          mkdir -p ~/.dbt
+          cat <<EOF > ~/.dbt/profiles.yml
+          Airbnb_proj_Stach_AWS_Snowflake_DBT:
+            target: dev
+            outputs:
+              dev:
+                type: snowflake
+                account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+                user: "{{ env_var('SNOWFLAKE_USER') }}"
+                password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
+                role: ACCOUNTADMIN
+                warehouse: COMPUTE_WH
+                database: AIRBNB
+                schema: PIPELINE
+                threads: 4
+          EOF
+          
       - name: Install project dependencies
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt deps
