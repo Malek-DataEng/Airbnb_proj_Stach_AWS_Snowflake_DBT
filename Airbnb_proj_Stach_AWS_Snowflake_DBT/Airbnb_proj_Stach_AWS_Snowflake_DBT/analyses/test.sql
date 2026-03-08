@@ -1,6 +1,4 @@
-
-
-
+-- test: pour creer pull request afin de tester le le workflow CI
 
 select
         book.booking_id, 
@@ -63,3 +61,5 @@ from
 
 SELECT * FROM AIRBNB.STAGING.BOOKINGS
  qualify {{ duplicate_row('BOOKING_id, created_at', 'created_at') }}
+
+
