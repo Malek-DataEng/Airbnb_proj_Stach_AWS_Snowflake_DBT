@@ -40,10 +40,10 @@ jobs:
                 account: ${SNOWFLAKE_ACCOUNT}
                 user: ${SNOWFLAKE_USER}
                 password: ${SNOWFLAKE_PASSWORD}
-                role: ACCOUNTADMIN
+                role: ${SNOWFLAKE_ROLE}
                 database: ${SNOWFLAKE_DATABASE}
                 warehouse: ${SNOWFLAKE_WAREHOUSE}
-                schema: PIPELINE
+                schema: ${SNOWFLAKE_SCHEMA}
                 threads: 4
           EOF
     
@@ -54,6 +54,8 @@ jobs:
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
           SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}  
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
         run: |
             cd Airbnb_proj_Stach_AWS_Snowflake_DBT
             python scripts/run_dbt_if_needed.py
