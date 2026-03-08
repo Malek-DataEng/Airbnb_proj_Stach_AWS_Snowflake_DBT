@@ -46,7 +46,15 @@ jobs:
                 schema: ${SNOWFLAKE_SCHEMA}
                 threads: 4
           EOF
-    
+          
+      - name: Debug Snowflake env
+        run: |
+          echo $SNOWFLAKE_ACCOUNT
+          echo $SNOWFLAKE_USER
+          echo $SNOWFLAKE_ROLE
+          echo $SNOWFLAKE_SCHEMA
+          echo $SNOWFLAKE_DATABASE
+          
       - name: Run pipeline if new data   
         env:
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
