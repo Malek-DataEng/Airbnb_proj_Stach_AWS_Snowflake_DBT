@@ -37,9 +37,7 @@ jobs:
           ls -R
     
       - name: Run pipeline if new data
-        run: |
-          cd Airbnb_proj_Stach_AWS_Snowflake_DBT
-          python scripts/run_dbt_if_needed.py
+        run: python scripts/run_dbt_if_needed.py
           
         env:
           env:
