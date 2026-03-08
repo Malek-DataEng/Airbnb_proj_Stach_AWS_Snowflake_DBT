@@ -23,14 +23,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Debug Snowflake env
-        run: |
-          echo $SNOWFLAKE_ACCOUNT
-          echo $SNOWFLAKE_USER
-          echo $SNOWFLAKE_ROLE
-          echo $SNOWFLAKE_SCHEMA
-          echo $SNOWFLAKE_DATABASE
-
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
