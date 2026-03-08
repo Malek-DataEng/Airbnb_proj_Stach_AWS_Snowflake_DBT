@@ -63,3 +63,5 @@ from
 
 SELECT * FROM AIRBNB.STAGING.BOOKINGS
  qualify {{ duplicate_row('BOOKING_id, created_at', 'created_at') }}
+
+
