@@ -9,10 +9,27 @@ jobs:
   run-dbt:
     runs-on: ubuntu-latest
 
+    env:
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+          SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}  
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+          SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+          
     steps:
 
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Debug Snowflake env
+        run: |
+          echo $SNOWFLAKE_ACCOUNT
+          echo $SNOWFLAKE_USER
+          echo $SNOWFLAKE_ROLE
+          echo $SNOWFLAKE_SCHEMA
+          echo $SNOWFLAKE_DATABASE
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -47,23 +64,7 @@ jobs:
                 threads: 4
           EOF
           
-      - name: Debug Snowflake env
-        run: |
-          echo $SNOWFLAKE_ACCOUNT
-          echo $SNOWFLAKE_USER
-          echo $SNOWFLAKE_ROLE
-          echo $SNOWFLAKE_SCHEMA
-          echo $SNOWFLAKE_DATABASE
-          
       - name: Run pipeline if new data   
-        env:
-          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
-          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
-          SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}  
-          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
-          SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
         run: |
             cd Airbnb_proj_Stach_AWS_Snowflake_DBT
             python scripts/run_dbt_if_needed.py
