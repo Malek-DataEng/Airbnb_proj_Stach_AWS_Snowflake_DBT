@@ -47,15 +47,14 @@ jobs:
                 threads: 4
           EOF
     
-      - name: Run pipeline if new data
-        run: |
-            cd Airbnb_proj_Stach_AWS_Snowflake_DBT
-            python scripts/run_dbt_if_needed.py
-            
+      - name: Run pipeline if new data   
         env:
-          env:
           SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
           SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
           SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
           SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
           SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}  
+        run: |
+            cd Airbnb_proj_Stach_AWS_Snowflake_DBT
+            python scripts/run_dbt_if_needed.py
+         
