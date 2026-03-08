@@ -10,6 +10,11 @@ jobs:
   dbt-ci:
     runs-on: ubuntu-latest
 
+    env:
+          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+
     steps:
 
       - name: Checkout repo
@@ -50,10 +55,6 @@ jobs:
       - name: Run dbt debug
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt debug
-        env:
-          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
 
       - name: Run dbt tests
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
