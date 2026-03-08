@@ -1,27 +1,28 @@
 # Airbnb Modern Data Pipeline
 
-# Overview
+# Project Overview
 
-This project implements a **modern end-to-end data pipeline** for Airbnb datasets using a cloud data warehouse architecture.
+This project demonstrates the design and implementation of a **modern cloud data pipeline** for Airbnb data using a scalable **ELT architecture**.
 
-The pipeline automatically:
+The pipeline automatically ingests raw data, processes transformations, tracks historical changes, and delivers **analytics-ready datasets** for business intelligence.
 
-* ingests raw data
-* processes transformations
-* tracks historical changes
-* produces analytics-ready tables
+The project showcases **industry best practices used in modern data platforms**, including:
 
-The architecture follows **modern Data Engineering best practices** such as:
+* cloud data warehousing
 
-* layered data architecture
-* event-driven pipelines
-* incremental transformations
-* CI/CD for data workflows
-* automated orchestration
+* layered data modeling
+
+* incremental data processing
+
+* event-driven orchestration
+
+* automated CI/CD for data pipelines
+
+* historical data tracking with SCD Type 2
 
 ---
 
-# Data Architecture
+# Architecture Overview
 
 The pipeline integrates **Amazon S3, Snowflake and dbt** to build a scalable ELT architecture.
 
@@ -59,7 +60,19 @@ K --> L[Gold Analytics Tables]
 
 # Data Modeling
 
-The transformation layer implements a **dimensional model** optimized for analytics.
+The transformation layer implements a **dimensional star schema optimized for analytics workloads**.
+
+**Core Tables**
+
+* Fact Table
+
+    * fact_bookings
+
+* Dimension Tables
+
+    * dim_listings
+
+    * dim_hosts
 
 ## Star Schema
 
@@ -128,42 +141,42 @@ gold analytics tables
 
 ### Staging
 
-Raw tables.
+Raw ingested tables from Snowflake staging.
 
 ### Bronze
 
-Raw tables incremented and dedeupliqued data.
+Incremental ingestion and deduplication layer.
 
 ### Silver
 
-Business-ready clean datasets.
+Clean, business-ready datasets.
 
 ### Snapshots
 
-Track historical changes using **Slowly Changing Dimensions (Type 2)**.
+Historical tracking using **Slowly Changing Dimensions (Type 2)**.
 
 ### Fact Tables
 
-Store measurable business events such as bookings.
+Transactional data representing booking events.
 
 ### Gold Layer
 
-Optimized datasets for BI and analytics.
+Analytics-ready datasets optimized for BI queries.
 
 ---
 
-# CI/CD Pipeline
+# CI/CD for Data Pipelines
 
-This project implements **Continuous Integration and Continuous Deployment**.
+The project includes automated **data pipeline CI/CD using GitHub Actions**.
 
-## CI (Continuous Integration)
+## Continuous Integration (CI)
 
 Triggered on:
 
 * pull requests
 * commits to main branch
 
-CI runs:
+CI pipeline executes:
 
 ```
 dbt deps
@@ -171,15 +184,15 @@ dbt debug
 dbt test
 ```
 
-Purpose:
+Ensuring:
 
-* validate SQL models
-* ensure data quality
-* verify connectivity
+* SQL model validation
+* data quality testing
+* Snowflake connectivity
 
 ---
 
-## CD (Continuous Deployment)
+## Continuous Deployment (CD)
 
 A scheduled workflow checks the pipeline control table.
 
@@ -189,7 +202,9 @@ If new data is detected:
 dbt build
 ```
 
-is executed automatically.
+is automatically triggered.
+
+This enables **event-driven data transformations**.
 
 ---
 
@@ -223,48 +238,54 @@ airbnb-data-pipeline
 
 # Technologies
 
-Data Warehouse: Snowflake
+| Layer          | Technology                |
+| -------------- | ------------------------- |
+| Storage        | AWS S3                    |
+| Data Warehouse | Snowflake                 |
+| Transformation | dbt                       |
+| Orchestration  | Snowflake Streams & Tasks |
+| CI/CD          | GitHub Actions            |
+| Programming    | Python                    |
 
-Transformation: dbt
-
-Orchestration: Snowflake Streams and Snowflake Tasks
-
-CI/CD: GitHub Actions
-
-Storage: AWS S3
-
-Programming: Python
 
 ---
 
-# Key Features
+# Key Data Engineering Concepts Demonstrated
 
-Event-driven pipeline
+* Modern ELT architecture
 
-Incremental processing
+* Layered data modeling (Bronze / Silver / Gold)
 
-Automated orchestration
+* Incremental data processing
 
-Historical tracking (SCD2)
+* Event-driven pipelines
 
-Data quality tests
+* Slowly Changing Dimensions (SCD Type 2)
 
-Fully automated CI/CD
+* Automated data testing
+
+* CI/CD for data pipelines
+
+* Cloud-native data platform design
 
 ---
 
 # Future Improvements
 
-Potential next steps:
+Potential extensions:
 
-* data observability
-* automated freshness monitoring
-* BI dashboards
-* semantic data layer
-* orchestration with Airflow
+* data observability (Monte Carlo / Great Expectations)
+
+* data freshness monitoring
+
+* BI dashboards (Power BI / Looker)
+
+* semantic layer
+
+* orchestration with Apache Airflow
 
 ---
 
 # Author
 
-Modern Data Engineering project demonstrating scalable ELT architecture.
+Modern Data Engineering portfolio project showcasing **scalable cloud data platform architecture**.
