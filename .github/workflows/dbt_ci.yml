@@ -55,10 +55,6 @@ jobs:
       - name: Run dbt debug
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt debug
-      
-      - name: Build project
-        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
-        run: dbt build
 
       - name: Run dbt tests
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
@@ -68,8 +64,10 @@ jobs:
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt docs generate
 
-      - name: Show files for debugging
-        run: ls -R ./Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT/target
+      - name: Fix dbt docs for GitHub Pages
+        run: |
+          sed -i 's|href="/|href="./|g' ./Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT/target/index.html
+
           
       - name: Publish dbt docs to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
