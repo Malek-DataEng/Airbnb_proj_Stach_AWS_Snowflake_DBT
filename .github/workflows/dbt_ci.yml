@@ -67,9 +67,12 @@ jobs:
       - name: Publish dbt docs to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GH_TOKEN }}
           publish_dir: ./target
           publish_branch: gh-pages
-          force_orphan: true  
+          force_orphan: true
           keep_files: false
           allow_empty_commit: false
+          enable_jekyll: false
+          disable_nojekyll: false
+          exclude_assets: .github
