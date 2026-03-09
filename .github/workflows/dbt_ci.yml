@@ -59,3 +59,7 @@ jobs:
       - name: Run dbt tests
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt test
+
+      - name: Generate dbt documentation
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
+        run: dbt docs generate
