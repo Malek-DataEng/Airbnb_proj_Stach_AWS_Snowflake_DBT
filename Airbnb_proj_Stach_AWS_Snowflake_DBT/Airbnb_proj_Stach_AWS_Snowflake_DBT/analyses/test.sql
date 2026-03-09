@@ -1,4 +1,5 @@
 -- test: pour creer pull request afin de tester le le workflow CI
+-- test 1: pour creer pull request afin de tester le le workflow CI
 
 select
         book.booking_id, 
