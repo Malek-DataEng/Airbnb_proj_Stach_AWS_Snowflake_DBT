@@ -4,7 +4,8 @@
 
 This project demonstrates the design and implementation of a **modern cloud data pipeline** for Airbnb data using a scalable **ELT architecture**.
 
-The pipeline automatically ingests raw data, processes transformations, tracks historical changes, and delivers **analytics-ready datasets** for business intelligence.
+The pipeline automatically ingests raw data, processes transformations, tracks historical changes, delivers **analytics-ready datasets** for business intelligence
+and **Automated dbt documentation generation providing model lineage and dataset documentation**.
 
 The project showcases **industry best practices used in modern data platforms**, including:
 
@@ -19,6 +20,7 @@ The project showcases **industry best practices used in modern data platforms**,
 * automated CI/CD for data pipelines
 
 * historical data tracking with SCD Type 2
+* dbt docs provides a lightweight analytics documentation layer.
 
 ---
 
@@ -182,6 +184,7 @@ CI pipeline executes:
 dbt deps
 dbt debug
 dbt test
+dbt docs generate
 ```
 
 Ensuring:
