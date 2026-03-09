@@ -1,0 +1,73 @@
+sources:
+    - name: bronze
+      database: AIRBNB
+      schema: BRONZE
+      tables:
+        - name: bronze_listings
+          description: "Listings table: elle contient les informations sur les biens mis en location sur Airbnb"
+          
+          columns:
+            - name: listing_id
+              description: "Listing id: identifiant unique du listing"
+              tests:
+                - not_null
+            - name: host_id
+              description: "Host id: identifiant unique du host"
+              tests:
+                - not_null
+                - relationships:
+                    arguments:
+                      to: source('bronze', 'bronze_hosts')
+                      field: host_id
+          
+
+        - name: bronze_hosts
+          description: "Hosts table: elle contient les informations sur les personnes qui publient les logements."
+        
+          columns:
+            - name: host_id
+              description: "Host id: identifiant unique du host"
+              tests:
+                - not_null
+    
+        - name: bronze_bookings
+          description: "Bookings table: la table transactionnelle. Elle contient les données sur les séjours réellement réservés"
+
+          columns:
+            - name: booking_id
+              description: "Booking id: identifiant unique du booking, doit etre not null"
+              tests:
+                - not_null
+
+            - name: listing_id
+              description: "Listing id: identifiant unique du listing"
+              tests:
+                - not_null
+                - relationships:
+                    arguments:
+                      to: source('bronze', 'bronze_listings')
+                      field: listing_id
+          
+            - name: booking_status
+              description: "Booking status: statut de la réservation"
+              tests:
+                - accepted_values:
+                    arguments:
+                      values: ["cancelled", "confirmed"]
+
+            - name: booking_date
+              description: "Booking date: date de la réservation, doit etre not null"
+              tests:
+                - not_null
+           
+            - name: nights_booked
+              description: "Nights booked: nombre de nuits réservées, doit etre > 0"
+              tests:
+                - not_null
+                - dbt_utils.expression_is_true:
+                    arguments: 
+                        expression: ">= 1" 
+                        
+
+
+

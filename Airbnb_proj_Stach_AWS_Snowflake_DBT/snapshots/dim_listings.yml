@@ -1,0 +1,12 @@
+snapshots:
+  - name: dim_listings
+    description: "Chaque ligne représente une version d’un listing valide sur une période donnée. (snapshot SCD-2)"
+    relation: ref('listings') 
+    config:
+      database: airbnb
+      schema: gold
+      alias: dim_listings
+      strategy: timestamp 
+      unique_key: listing_id
+      updated_at: listing_created_at
+      dbt_valid_to_current: "to_date('9999-12-31')"
