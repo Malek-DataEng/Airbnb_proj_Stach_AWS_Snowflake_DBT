@@ -64,8 +64,8 @@ jobs:
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt docs generate
 
-      - name: List dbt target folder
-        run: ls -R ./Airbnb_proj_Stach_AWS_Snowflake_DBT/target
+      - name: Show files for debugging
+        run: pwd && ls -
           
       - name: Publish dbt docs to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
