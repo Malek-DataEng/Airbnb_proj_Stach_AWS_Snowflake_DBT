@@ -1,0 +1,31 @@
+
+name: 'Airbnb_proj_Stach_AWS_Snowflake_DBT'
+version: '1.0.0'
+
+profile: 'Airbnb_proj_Stach_AWS_Snowflake_DBT'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:         # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+models:
+  Airbnb_proj_Stach_AWS_Snowflake_DBT:
+    
+    silver:
+      +schema: silver
+      +materialized: table 
+    
+    gold:
+      +schema: gold
+      +materialized: table 
+      +transient: false
+
+      ephemeral: 
+        +materialized: ephemeral
