@@ -47,7 +47,11 @@ jobs:
                 schema: PIPELINE
                 threads: 4
           EOF
-          
+
+      - name: Install project dependencies
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
+        run: dbt deps
+        
       - name: Run dbt debug
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt debug
@@ -58,10 +62,6 @@ jobs:
 
       - name: Clean target directory
         run: rm -rf Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT/target
-
-      - name: Install project dependencies
-        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
-        run: dbt deps
         
       - name: Generate dbt documentation
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
