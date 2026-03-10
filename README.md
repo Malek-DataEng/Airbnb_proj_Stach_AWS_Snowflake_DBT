@@ -22,6 +22,13 @@ The project showcases **industry best practices used in modern data platforms**,
 * historical data tracking with SCD Type 2
 * dbt docs provides a lightweight analytics documentation layer.
 
+## 📚 dbt Documentation
+
+The dbt documentation for this project is automatically generated and published with GitHub Actions.
+
+🔗 View the documentation here:  
+https://malek-dataeng.github.io/Airbnb_proj_Stach_AWS_Snowflake_DBT/
+
 ---
 
 # Architecture Overview
