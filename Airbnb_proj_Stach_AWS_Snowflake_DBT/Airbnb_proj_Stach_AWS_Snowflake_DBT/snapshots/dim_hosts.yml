@@ -1,5 +1,6 @@
 snapshots:
   - name: dim_hosts
+    description: "Chaque ligne représente une version d’un hôte valide sur une période donnée. (snapshot SCD-2)"
     relation: ref('hosts') 
     config:
       database: airbnb
