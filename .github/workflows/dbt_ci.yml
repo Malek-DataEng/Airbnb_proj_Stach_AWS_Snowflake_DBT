@@ -9,14 +9,16 @@ on:
 jobs:
   dbt-ci:
     runs-on: ubuntu-latest
-
     env:
-          SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
-          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
-          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
 
     steps:
-
       - name: Checkout repo
         uses: actions/checkout@v3
 
@@ -25,10 +27,18 @@ jobs:
         with:
           python-version: '3.10'
 
+      # Cache pip pour éviter de retélécharger dbt-snowflake à chaque run
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-dbt-snowflake-1.8.0
+
       - name: Install dbt
         run: |
-          pip install dbt-snowflake
+          pip install dbt-snowflake==1.8.0
 
+      # Création du profil AVANT dbt deps
       - name: Create dbt profile
         run: |
           mkdir -p ~/.dbt
@@ -38,40 +48,40 @@ jobs:
             outputs:
               dev:
                 type: snowflake
-                account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
-                user: "{{ env_var('SNOWFLAKE_USER') }}"
-                password: "{{ env_var('SNOWFLAKE_PASSWORD') }}"
-                role: ACCOUNTADMIN
-                warehouse: COMPUTE_WH
-                database: AIRBNB
-                schema: PIPELINE
+                account: ${SNOWFLAKE_ACCOUNT}
+                user: ${SNOWFLAKE_USER}
+                password: ${SNOWFLAKE_PASSWORD}
+                role: ${SNOWFLAKE_ROLE}
+                warehouse: ${SNOWFLAKE_WAREHOUSE}
+                database: ${SNOWFLAKE_DATABASE}
+                schema: ${SNOWFLAKE_SCHEMA}
                 threads: 4
           EOF
 
-      - name: Install project dependencies
+      - name: Install dbt packages
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt deps
-        
+
       - name: Run dbt debug
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt debug
+
+      # dbt run obligatoire avant dbt test pour que les modèles existent
+      - name: Run dbt models
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
+        run: dbt run
 
       - name: Run dbt tests
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt test
 
-      - name: Clean target directory
-        run: rm -rf Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT/target
-        
       - name: Generate dbt documentation
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt docs generate
 
-      #- name: Fix dbt docs for GitHub Pages
-      #  run: |
-      #   sed -i 's|href="/|href="./|g' ./Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT/target/index.html
- 
+      # Publication uniquement sur main pour ne pas écraser la doc de prod avec une branche PR
       - name: Publish dbt docs to GitHub Pages
+        if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GH_TOKEN }}
@@ -80,6 +90,9 @@ jobs:
           force_orphan: true
           keep_files: false
           allow_empty_commit: false
-          enable_jekyll: false
-          disable_nojekyll: false
-          exclude_assets: .github
+          enable_jekyll: false   # Jekyll désactivé — requis pour que les assets dbt docs (JS/CSS) fonctionnent
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "dbt CI pipeline failed on ${{ github.ref }} — commit ${{ github.sha }}"
