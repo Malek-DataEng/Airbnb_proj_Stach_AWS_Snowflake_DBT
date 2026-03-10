@@ -190,8 +190,10 @@ CI pipeline executes:
 ```
 dbt deps
 dbt debug
+dbt run
 dbt test
 dbt docs generate
+Publish dbt docs to GitHub Pages
 ```
 
 Ensuring:
