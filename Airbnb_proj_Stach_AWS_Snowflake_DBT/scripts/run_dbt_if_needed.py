@@ -1,4 +1,5 @@
 # import des librairies
+import os
 import snowflake.connector
 import subprocess
 
@@ -42,7 +43,23 @@ try:
     """)
 
     # 3️ lancer dbt
-    subprocess.run(["dbt", "build"], check=True)
+    #subprocess.run(["dbt", "build"], check=True)
+    PROJECT_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "Airbnb_proj_Stach_AWS_Snowflake_DBT"
+    )
+    
+    subprocess.run(
+        [
+            "dbt",
+            "build",
+            "--project-dir",
+            PROJECT_DIR,
+            "--profiles-dir",
+            os.path.expanduser("~/.dbt")
+        ],
+        check=True
+    )
 
     # 4️ si succès
     cur.execute(f"""

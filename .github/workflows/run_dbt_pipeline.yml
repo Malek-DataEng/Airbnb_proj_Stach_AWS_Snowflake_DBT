@@ -1,0 +1,77 @@
+name: Run dbt pipeline
+
+on:
+  schedule:
+    # Toutes les 6 heures — évite les 288 runs/jour du cron */5 précédent
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  run-dbt:
+    runs-on: ubuntu-latest
+    env:
+      SNOWFLAKE_USER: ${{ secrets.SNOWFLAKE_USER }}
+      SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+      SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+      SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+      SNOWFLAKE_DATABASE: ${{ secrets.SNOWFLAKE_DATABASE }}
+      SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+      SNOWFLAKE_SCHEMA: ${{ secrets.SNOWFLAKE_SCHEMA }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # Cache pip pour éviter de retélécharger les dépendances à chaque run schedulé
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-dbt-snowflake-1.8.0
+
+      - name: Install dependencies
+        run: |
+          pip install dbt-snowflake==1.8.0
+          # snowflake-connector-python est déjà inclus dans dbt-snowflake,
+          # on le fixe explicitement pour éviter tout conflit de version
+          pip install snowflake-connector-python==3.10.0
+
+      # Création du profil AVANT dbt deps
+      - name: Create dbt profile
+        run: |
+          mkdir -p ~/.dbt
+          cat <<EOF > ~/.dbt/profiles.yml
+          Airbnb_proj_Stach_AWS_Snowflake_DBT:
+            target: dev
+            outputs:
+              dev:
+                type: snowflake
+                account: ${SNOWFLAKE_ACCOUNT}
+                user: ${SNOWFLAKE_USER}
+                password: ${SNOWFLAKE_PASSWORD}
+                role: ${SNOWFLAKE_ROLE}
+                warehouse: ${SNOWFLAKE_WAREHOUSE}
+                database: ${SNOWFLAKE_DATABASE}
+                schema: ${SNOWFLAKE_SCHEMA}
+                threads: 4
+          EOF
+
+      - name: Install dbt packages
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
+        run: dbt deps
+
+      - name: Run pipeline if new data
+        run: |
+          cd Airbnb_proj_Stach_AWS_Snowflake_DBT
+          python scripts/run_dbt_if_needed.py
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "dbt pipeline failed — run at ${{ github.run_id }}"
+          
