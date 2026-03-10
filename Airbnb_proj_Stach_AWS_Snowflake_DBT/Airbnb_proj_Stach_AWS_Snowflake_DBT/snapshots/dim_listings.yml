@@ -1,5 +1,6 @@
 snapshots:
   - name: dim_listings
+    description: "Chaque ligne représente une version d’un listing valide sur une période donnée. (snapshot SCD-2)"
     relation: ref('listings') 
     config:
       database: airbnb
