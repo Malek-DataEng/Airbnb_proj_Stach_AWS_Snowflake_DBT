@@ -2,7 +2,8 @@
 -- test 1 : pour creer pull request afin de tester le le workflow CI
 -- test 2 : pour creer pull request afin de tester le le workflow CI
 -- test 3 : pour creer pull request afin de tester le le workflow CI
--- test 4 : pour creer pull request afin de tester le le workflow CI 
+-- test 4 :  pour creer pull request afin de tester le le workflow CI
+
 select
         book.booking_id, 
         book.booking_date, --2025-03-10T00:00:00
@@ -66,7 +67,4 @@ SELECT * FROM AIRBNB.STAGING.BOOKINGS
  qualify {{ duplicate_row('BOOKING_id, created_at', 'created_at') }}
 
 
-<<<<<<< HEAD
  
-=======
->>>>>>> 56a81d144d5de69612810e6c2ba26bfcc557f958
