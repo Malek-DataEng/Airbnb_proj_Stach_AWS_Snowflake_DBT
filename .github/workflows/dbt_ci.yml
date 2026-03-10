@@ -81,7 +81,7 @@ jobs:
 
       # Publication uniquement sur main pour ne pas écraser la doc de prod avec une branche PR
       - name: Publish dbt docs to GitHub Pages
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GH_TOKEN }}
