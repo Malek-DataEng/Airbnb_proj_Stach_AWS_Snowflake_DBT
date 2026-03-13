@@ -39,7 +39,7 @@ The pipeline covers the full data engineering lifecycle:
 
 The pipeline integrates **Amazon S3, Snowflake and dbt** into a fully automated, event-driven ELT architecture.
 
-![pipeline-diagram](https://github.com/user-attachments/assets/ab6accfe-6288-4f85-a211-eb6df7701520)
+![pipeline-diagram](pipeline-diagram.svg)
 
 > **Key design decisions:**
 > - S3 Event Notifications via SQS trigger Snowpipe automatically — no scheduler needed
