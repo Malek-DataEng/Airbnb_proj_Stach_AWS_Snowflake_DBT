@@ -48,6 +48,73 @@ The pipeline integrates **Amazon S3, Snowflake and dbt** into a fully automated,
 
 ---
 
+## ⚙️ dbt Transformations
+
+### Pipeline Overview
+
+| Layer | Model | Pattern | Business Logic |
+|-------|-------|---------|----------------|
+| 🥉 Bronze | `bronze_bookings` | Snowflake Task + `QUALIFY ROW_NUMBER()` | Deduplication from CDC stream — exactly-once ingestion |
+| 🥉 Bronze | `bronze_listings` | Snowflake Task + `QUALIFY ROW_NUMBER()` | Deduplication on `listing_id, created_at` |
+| 🥉 Bronze | `bronze_hosts` | Snowflake Task + `QUALIFY ROW_NUMBER()` | Deduplication on `host_id, created_at` |
+| 🥈 Silver | `silver_bookings` | `divide()` macro | `net_revenue`, `price_per_night`, `total_booking_value` |
+| 🥈 Silver | `silver_hosts` | `trim_upper()` + CASE | `host_tenure_years`, `superhost_flag`, `host_response_segment` |
+| 🥈 Silver | `silver_listings` | `divide()` + `tag()` macro | `bedroom_density`, `price_per_person`, `price_tag` |
+| 🥈 Silver | `dim_listings` | Snapshot SCD Type 2 | Full historical tracking of listing changes |
+| 🏅 Gold | `fact_bookings` | Star schema join | Aggregated booking facts + KPIs |
+
+---
+
+### 📦 `silver_bookings` — Revenue Engineering
+
+| Metric | Logic | Business Purpose |
+|--------|-------|-----------------|
+| `booking_price_per_night` | `booking_amount / nights_booked` | Prix normalisé par nuit |
+| `total_fees` | `cleaning_fee + service_fee` | Coût total des frais |
+| `total_booking_value` | `total_fees + booking_amount` | Revenue brut total |
+| `net_revenue` | `booking_amount - total_fees` | Revenue net après frais |
+
+### 🏠 `silver_hosts` — Host Performance Scoring
+
+| Metric | Logic | Business Purpose |
+|--------|-------|-----------------|
+| `host_tenure_years` | `datediff(year, host_since, current_date)` | Ancienneté du host |
+| `superhost_flag` | `CASE WHEN is_superhost THEN 1 ELSE 0` | Score pondéré Superhost |
+| `host_response_segment` | `≥95% → ELITE / ≥80% → GOOD / else LOW` | Segmentation performance |
+
+### 🏘️ `silver_listings` — Listing Analytics
+
+| Metric | Logic | Business Purpose |
+|--------|-------|-----------------|
+| `bedroom_density` | `bedrooms / accommodates` | Confort vs capacité |
+| `price_per_person` | `price_per_night / accommodates` | Prix comparatif par personne |
+| `price_tag` | `{{ tag('price_per_night') }}` | BUDGET / MID_RANGE / LUXURY |
+
+---
+
+### 🔧 Custom Macros
+
+| Macro | Role |
+|-------|------|
+| `divide(a, b, precision=2)` | Safe division with rounding |
+| `multiply(a, b, precision=2)` | Multiplication with rounding |
+| `tag(column)` | Price categorization: BUDGET / MID_RANGE / LUXURY |
+| `trim_upper(col)` / `trim_lower(col)` | String normalization |
+| `incremental(column)` | Incremental filter with first-run guard (`1=1`) |
+| `generate_schema_name` | Custom schema routing — overrides dbt default |
+
+### ✅ Data Quality Tests
+
+| Test type | Coverage |
+|-----------|----------|
+| `not_null` | `booking_id`, `listing_id`, `host_id`, `booking_date`, `nights_booked` |
+| `accepted_values` | `booking_status` → `confirmed`, `cancelled` |
+| `relationships` | `listing_id` → `bronze_listings` · `host_id` → `bronze_hosts` |
+| `dbt_utils.expression_is_true` | `nights_booked >= 1` |
+| Custom singular test | Rejects bookings with `booking_amount <= 0` or `nights_booked <= 0` |
+
+---
+
 ## 📚 dbt Documentation
 
 Documentation is **automatically generated and published** on every push to `main` via GitHub Actions.
