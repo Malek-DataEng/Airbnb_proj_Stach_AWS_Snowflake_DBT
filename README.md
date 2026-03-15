@@ -249,15 +249,6 @@ airbnb-data-pipeline/
 
 ---
 
-## 🔭 Future Improvements
-
-- [ ] Data observability with Great Expectations or Elementary
-- [ ] Data freshness monitoring and alerting
-- [ ] BI dashboards (Power BI / Looker)
-- [ ] Semantic layer integration
-- [ ] Orchestration migration to Apache Airflow
-
----
 
 ## 👤 Author
 
