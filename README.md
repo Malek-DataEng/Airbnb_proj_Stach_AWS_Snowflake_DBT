@@ -8,7 +8,7 @@
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ton-url-streamlit.streamlit.app)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://malek-dataeng-airbnb-kpis.streamlit.app/)
 
 **Production-grade ELT pipeline** — event-driven ingestion, layered data modeling, automated CI/CD and dbt documentation.
 
