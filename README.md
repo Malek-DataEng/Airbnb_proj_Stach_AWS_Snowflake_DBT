@@ -8,6 +8,7 @@
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ton-url-streamlit.streamlit.app)
 
 **Production-grade ELT pipeline** — event-driven ingestion, layered data modeling, automated CI/CD and dbt documentation.
 
@@ -32,6 +33,8 @@ The pipeline covers the full data engineering lifecycle:
 | 🚀 CI/CD | GitHub Actions — automated dbt run + docs deploy |
 | 🧱 Data modeling | Bronze / Silver / Gold + SCD Type 2 Snapshots |
 | 📖 Documentation | Auto-generated dbt lineage + data catalog |
+| 📊 Live Demo | Streamlit App — données Gold en direct | [→ Voir l'app](https://ton-url.streamlit.app) |
+
 
 ---
 
