@@ -59,24 +59,24 @@ jobs:
           EOF
 
       - name: Install dbt packages
-        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt deps
 
       - name: Run dbt debug
-        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt debug
 
       # dbt run obligatoire avant dbt test pour que les modèles existent
       - name: Run dbt models
-        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt run
 
       - name: Run dbt tests
-        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt test
 
       - name: Generate dbt documentation
-        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt docs generate
 
       # Publication uniquement sur main pour ne pas écraser la doc de prod avec une branche PR
@@ -85,7 +85,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GH_TOKEN }}
-          publish_dir: ./Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT/target
+          publish_dir: ./Airbnb_proj_Stach_AWS_Snowflake_DBT/target
           publish_branch: gh-pages
           force_orphan: true
           keep_files: false

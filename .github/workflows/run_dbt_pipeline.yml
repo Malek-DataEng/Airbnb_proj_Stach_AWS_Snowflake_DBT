@@ -62,13 +62,13 @@ jobs:
           EOF
 
       - name: Install dbt packages
-        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT/Airbnb_proj_Stach_AWS_Snowflake_DBT
+        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt deps
 
+      # Le script vit a la racine du depot et resout lui-meme le repertoire dbt.
+      # Il ne faut donc PAS se placer dans le projet dbt avant de l'appeler.
       - name: Run pipeline if new data
-        run: |
-          cd Airbnb_proj_Stach_AWS_Snowflake_DBT
-          python scripts/run_dbt_if_needed.py
+        run: python scripts/run_dbt_if_needed.py
 
       - name: Notify on failure
         if: failure()

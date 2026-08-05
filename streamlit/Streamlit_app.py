@@ -108,48 +108,52 @@ st.markdown("""
 # ─────────────────────────────────────────────
 # DATA LOADING
 # ─────────────────────────────────────────────
-@st.cache_data(ttl=300)
-def load_from_snowflake():
-    """
-    Load from GOLD layer only:
-      - GOLD.OBT_BOOKINGS_ANALYTICS  : table denormalisee principale (bookings + listings + hosts)
-      - GOLD.DIM_HOSTS               : dimension hosts
-      - GOLD.DIM_LISTINGS            : dimension listings
-    """
-    try:
-        import snowflake.connector
-        conn = snowflake.connector.connect(
-            user=st.secrets["snowflake"]["user"],
-            password=st.secrets["snowflake"]["password"],
-            account=st.secrets["snowflake"]["account"],
-            warehouse=st.secrets["snowflake"]["warehouse"],
-            database=st.secrets["snowflake"]["database"],
-            schema="GOLD",
-        )
-        cur = conn.cursor()
+# Deux sources possibles, dans cet ordre :
+#   1. Un extrait CSV des tables Gold, versionne dans streamlit/data/
+#   2. A defaut, un jeu de demonstration genere
+#
+# L'infrastructure cloud du projet est decommissionnee (voir README).
+# Aucune connexion Snowflake n'est tentee : elle echouerait de toute facon,
+# et le connecteur alourdirait les dependances pour rien.
 
-        # OBT = source principale pour toutes les analyses croisees
-        cur.execute("SELECT * FROM GOLD.OBT_BOOKINGS_ANALYTICS")
-        obt = cur.fetch_pandas_all()
-
-        cur.execute("SELECT * FROM GOLD.DIM_HOSTS")
-        hosts = cur.fetch_pandas_all()
-
-        cur.execute("SELECT * FROM GOLD.DIM_LISTINGS")
-        listings = cur.fetch_pandas_all()
-
-        conn.close()
-        return obt, listings, hosts, "snowflake"
-    except Exception:
-        return None, None, None, "failed"
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
 
 @st.cache_data
-def load_from_csv():
+def load_from_extract():
     """
-    Fallback CSV demo — colonnes alignees sur GOLD.OBT_BOOKINGS_ANALYTICS.
-    Toutes les analyses utilisent l OBT comme source unique.
-    DIM_HOSTS et DIM_LISTINGS sont extraits depuis l OBT (deduplication).
+    Charge un extrait reel des tables Gold, s'il est present dans streamlit/data/.
+    Fichiers attendus :
+      - obt_bookings_analytics.csv : table denormalisee principale
+      - dim_listings.csv           : dimension listings
+      - dim_hosts.csv              : dimension hosts
+    Retourne (None, None, None, "absent") si l'extrait n'existe pas.
+    """
+    fichiers = {
+        "obt":      os.path.join(DATA_DIR, "obt_bookings_analytics.csv"),
+        "listings": os.path.join(DATA_DIR, "dim_listings.csv"),
+        "hosts":    os.path.join(DATA_DIR, "dim_hosts.csv"),
+    }
+    if not all(os.path.exists(p) for p in fichiers.values()):
+        return None, None, None, "absent"
+
+    try:
+        obt      = pd.read_csv(fichiers["obt"])
+        listings = pd.read_csv(fichiers["listings"])
+        hosts    = pd.read_csv(fichiers["hosts"])
+        return obt, listings, hosts, "extrait"
+    except Exception as e:
+        st.warning(f"Extrait present mais illisible ({e}). Bascule sur le jeu de demonstration.")
+        return None, None, None, "absent"
+
+
+@st.cache_data
+def generate_demo_data():
+    """
+    Jeu de demonstration GENERE, ce n'est pas un extrait.
+    Colonnes alignees sur GOLD.OBT_BOOKINGS_ANALYTICS pour que toutes les
+    visualisations fonctionnent a l'identique.
+    DIM_HOSTS et DIM_LISTINGS sont derives de l OBT par deduplication.
     """
     np.random.seed(42)
     n = 500
@@ -233,14 +237,14 @@ def load_from_csv():
     )
     listings["PRICE_PER_PERSON"] = np.random.randint(20, 120, len(listings)).astype(float)
 
-    return obt, listings, hosts, "csv"
+    return obt, listings, hosts, "demo"
 
 
 def load_data():
-    """Load data — Snowflake Gold (live) avec fallback CSV demo."""
-    obt, listings, hosts, source = load_from_snowflake()
-    if source == "failed":
-        obt, listings, hosts, source = load_from_csv()
+    """Extrait reel des tables Gold si disponible, sinon jeu de demonstration."""
+    obt, listings, hosts, source = load_from_extract()
+    if source == "absent":
+        obt, listings, hosts, source = generate_demo_data()
     # Normalize column names to uppercase
     for df in [obt, listings, hosts]:
         df.columns = [c.upper() for c in df.columns]
@@ -271,10 +275,12 @@ def render_sidebar(bookings, listings, hosts, source):
         st.markdown("---")
 
         # Data source badge
-        if source == "snowflake":
-            st.markdown('<span class="source-badge">🟢 Live — Snowflake</span>', unsafe_allow_html=True)
+        if source == "extrait":
+            st.markdown('<span class="source-badge">🟢 Real data — Gold layer extract</span>',
+                        unsafe_allow_html=True)
         else:
-            st.markdown('<span class="source-badge-csv">🟠 Demo — CSV Fallback</span>', unsafe_allow_html=True)
+            st.markdown('<span class="source-badge-csv">🟠 Generated demo dataset</span>',
+                        unsafe_allow_html=True)
 
         st.markdown("---")
         st.markdown("**🔗 Links**")
@@ -662,6 +668,16 @@ def main():
         <p>AWS S3 · Snowflake · dbt · GitHub Actions — Portfolio by <strong>Malek</strong></p>
     </div>
     """, unsafe_allow_html=True)
+
+    # Nature des donnees affichee sans ambiguite
+    if source != "extrait":
+        st.info(
+            "**Demo dataset.** The cloud infrastructure behind this pipeline has been "
+            "decommissioned, so these figures are generated, not real Airbnb activity. "
+            "The modeling logic behind every chart is documented in the "
+            "[dbt docs](https://malek-dataeng.github.io/Airbnb_proj_Stach_AWS_Snowflake_DBT/).",
+            icon="ℹ️",
+        )
 
     # Sidebar + filters
     selected_city, selected_status = render_sidebar(bookings, listings, hosts, source)
