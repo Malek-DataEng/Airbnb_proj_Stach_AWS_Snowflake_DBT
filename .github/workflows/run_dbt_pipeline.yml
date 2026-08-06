@@ -32,14 +32,20 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-dbt-snowflake-1.8.0
+          key: ${{ runner.os }}-pip-dbt-snowflake-1.11.3
 
       - name: Install dependencies
         run: |
-          pip install dbt-snowflake==1.8.0
-          # snowflake-connector-python est déjà inclus dans dbt-snowflake,
-          # on le fixe explicitement pour éviter tout conflit de version
-          pip install snowflake-connector-python==3.10.0
+          # Versions alignees sur le poste de developpement (dbt --version au 06/08/2026).
+          # dbt 1.10 minimum est OBLIGATOIRE : models/sources/sources.yml declare ses tests
+          # avec la syntaxe "arguments:", introduite en 1.10. En 1.8, "arguments" est passe
+          # aux macros de test comme un parametre inconnu et la compilation echoue.
+          pip install dbt-core==1.11.7 dbt-snowflake==1.11.3
+          # snowflake-connector-python est deja inclus dans dbt-snowflake.
+          # L'epinglage a 3.10.0 est retire : il datait de dbt-snowflake 1.8 et
+          # entrerait en conflit avec la version exigee par dbt-snowflake 1.11.
+          # Le script scripts/run_dbt_if_needed.py utilise ce connecteur, il prend
+          # donc celui installe par l'adaptateur.
 
       # Création du profil AVANT dbt deps
       - name: Create dbt profile

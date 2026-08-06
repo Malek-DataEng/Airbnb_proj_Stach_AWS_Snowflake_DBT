@@ -32,11 +32,15 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-dbt-snowflake-1.8.0
+          key: ${{ runner.os }}-pip-dbt-snowflake-1.11.3
 
       - name: Install dbt
         run: |
-          pip install dbt-snowflake==1.8.0
+          # Versions alignees sur le poste de developpement (dbt --version au 06/08/2026).
+          # dbt 1.10 minimum est OBLIGATOIRE : models/sources/sources.yml declare ses tests
+          # avec la syntaxe "arguments:", introduite en 1.10. En 1.8, "arguments" est passe
+          # aux macros de test comme un parametre inconnu et la compilation echoue.
+          pip install dbt-core==1.11.7 dbt-snowflake==1.11.3
 
       # Création du profil AVANT dbt deps
       - name: Create dbt profile
@@ -66,14 +70,17 @@ jobs:
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT
         run: dbt debug
 
-      # dbt run obligatoire avant dbt test pour que les modèles existent
-      - name: Run dbt models
+      # dbt build, et non "dbt run puis dbt test".
+      # Motif : fact_bookings fait ref() sur dim_listings et dim_hosts, qui sont des
+      # SNAPSHOTS. dbt run ne construit pas les snapshots, il ne selectionne que les
+      # modeles. L'enchainement run + test echouait donc sur
+      # "Object 'AIRBNB.GOLD.DIM_LISTINGS' does not exist or not authorized",
+      # constate en local le 06/08/2026.
+      # dbt build enchaine seeds, snapshots, modeles et tests dans l'ordre du graphe
+      # de dependances : l'oubli n'est plus possible.
+      - name: Build dbt project (snapshots, models, tests)
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT
-        run: dbt run
-
-      - name: Run dbt tests
-        working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT
-        run: dbt test
+        run: dbt build
 
       - name: Generate dbt documentation
         working-directory: Airbnb_proj_Stach_AWS_Snowflake_DBT
