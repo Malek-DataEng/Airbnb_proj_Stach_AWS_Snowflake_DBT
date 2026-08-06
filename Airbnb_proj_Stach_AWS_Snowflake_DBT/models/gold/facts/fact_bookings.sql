@@ -1,7 +1,7 @@
 {% set configs = [ 
     { 
         "table": ref('silver_bookings'),
-        "columns": "book.booking_id, book.booking_date, book.booking_year, book.booking_month, book.booking_week, book.booking_amount, book.nights_booked, book.booking_price_per_night, book.cleaning_fee, book.service_fee, book.total_fees, book.total_booking_value, book.net_revenue, book.created_at, book.etl_loaded_at",
+        "columns": "book.booking_id, book.booking_date, book.booking_year, book.booking_month, book.booking_week, book.booking_amount, book.nights_booked, book.booking_price_per_night, book.cleaning_fee, book.service_fee, book.total_fees, book.total_booking_value, book.net_revenue, book.booking_status, book.created_at, book.etl_loaded_at",
         "alias": "book"
     },
     {

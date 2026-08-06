@@ -6,7 +6,7 @@
     },
     {
         "table": ref('dim_listings'),
-        "columns": "d_list.property_type, d_list.room_type, d_list.city,d_list.country,d_list.ACCOMMODATES,d_list.bedrooms,d_list.bathrooms,d_list.price_per_night_tag,d_list.listing_created_at" ,
+        "columns": "d_list.property_type, d_list.room_type, d_list.city,d_list.country,d_list.ACCOMMODATES,d_list.bedrooms,d_list.bathrooms,d_list.price_per_night,d_list.price_per_night_tag,d_list.listing_created_at" ,
         "alias": "d_list",
         "join_condition": "fact_book.listing_id = d_list.listing_id",
         "filter_condition": "fact_book.created_at between d_list.dbt_valid_from and d_list.dbt_valid_to"
