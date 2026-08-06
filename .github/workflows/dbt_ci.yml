@@ -5,6 +5,9 @@ on:
   push:
     branches:
       - main
+  # Permet de lancer la CI a la main depuis l'onglet Actions, sans avoir a pousser
+  # un commit. Indispensable le jour ou un push ne declenche rien, comme le 06/08/2026.
+  workflow_dispatch:
 
 jobs:
   dbt-ci:
