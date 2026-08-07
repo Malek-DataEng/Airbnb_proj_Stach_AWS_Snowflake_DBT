@@ -250,8 +250,21 @@ def normaliser(obt, listings, hosts):
     return obt, listings, hosts
 
 
-@st.cache_data
 def load_data():
+    """
+    Volontairement NON mise en cache, contrairement aux deux fonctions de
+    chargement qu'elle appelle.
+
+    Motif, constate en production le 07/08/2026 : st.cache_data invalide d'apres
+    le code de la fonction qu'il decore, PAS d'apres celui des fonctions
+    appelees. Une correction apportee a normaliser() ne changeait pas le corps de
+    load_data(), donc Streamlit Cloud servait les anciennes donnees avec les
+    nouveaux libelles apres un simple rechargement du script.
+
+    Seules les lectures de fichiers restent cachees, la ou le cout est reel. La
+    normalisation est une transformation pure sur 1400 lignes : la rejouer a
+    chaque execution ne coute rien et supprime toute une classe de peremption.
+    """
     obt, listings, hosts, source = load_from_extract()
     if source == "absent":
         obt, listings, hosts, source = generate_demo_data()
