@@ -213,11 +213,29 @@ def normaliser(obt, listings, hosts):
     reel, ou BOOKING_MONTH_STR n'existe pas.
     """
     obt = obt.copy()
+    listings = listings.copy() if listings is not None else listings
+
     if "BOOKING_DATE" in obt:
         obt["BOOKING_DATE"] = pd.to_datetime(obt["BOOKING_DATE"], errors="coerce")
         obt["BOOKING_MONTH_STR"] = obt["BOOKING_DATE"].dt.to_period("M").astype(str)
     if "BOOKING_STATUS" in obt:
         obt["BOOKING_STATUS"] = obt["BOOKING_STATUS"].astype(str).str.strip().str.lower()
+        # Libelle d'affichage. La valeur technique reste en minuscules : c'est elle
+        # que le test accepted_values impose et que tous les filtres comparent.
+        obt["STATUT"] = obt["BOOKING_STATUS"].map(
+            {"confirmed": "Confirmée", "cancelled": "Annulée"}
+        ).fillna(obt["BOOKING_STATUS"])
+
+    # Silver applique trim_lower a city et country, trim_upper a property_type.
+    # A l'ecran, ca donnait « paris » a cote de « APARTMENT ». La casse est une
+    # decision de modelisation, sa mise en forme est une affaire de presentation :
+    # on la traite ici, sans toucher aux modeles.
+    for df in (obt, listings):
+        if df is None:
+            continue
+        for col in ("CITY", "COUNTRY", "PROPERTY_TYPE", "ROOM_TYPE", "HOST_NAME"):
+            if col in df.columns:
+                df[col] = df[col].astype(str).str.strip().str.title()
 
     for df in (obt, hosts):
         if "IS_SUPERHOST" in df:
@@ -264,6 +282,31 @@ def manquant(df, colonnes, section):
     return False
 
 
+# Libellés français des colonnes, appliqués aux axes et aux légendes.
+LIBELLES = {
+    "BOOKING_MONTH_STR": "Mois",
+    "BOOKING_STATUS": "Statut",
+    "STATUT": "Statut",
+    "TOTAL_BOOKING_VALUE": "Valeur totale",
+    "BOOKING_AMOUNT": "Montant du séjour",
+    "NIGHTS_BOOKED": "Nuits réservées",
+    "PRICE_PER_NIGHT": "Prix à la nuit",
+    "PRICE_PER_NIGHT_TAG": "Gamme de prix",
+    "ACCOMMODATES": "Capacité d'accueil",
+    "PROPERTY_TYPE": "Type de bien",
+    "ROOM_TYPE": "Type de chambre",
+    "CITY": "Ville",
+    "RESPONSE_RATE": "Taux de réponse",
+    "HOST_RESPONSE_SEGMENT": "Segment",
+    "HOST_ID": "Hôte",
+    "HOST_NAME": "Nom de l'hôte",
+    "reservations": "Réservations",
+    "ca": "Chiffre d'affaires",
+    "segment": "Segment",
+    "hotes": "Hôtes",
+}
+
+
 def styliser(fig, titre):
     fig.update_layout(title=titre, colorway=SEQUENCE, **PLOT_LAYOUT)
     fig.update_xaxes(showgrid=False)
@@ -276,18 +319,19 @@ def styliser(fig, titre):
 # ─────────────────────────────────────────────
 def bandeau_source(source, obt):
     if source == "extrait":
+        nb = f"{len(obt):,}".replace(",", " ")
         st.markdown(
-            f'<div class="source-real"><b>Extrait reel de la couche Gold</b> — '
-            f'{len(obt):,} reservations, produites par les modeles dbt de ce depot '
-            f'sur un jeu de donnees synthetique. Aucune donnee client.</div>'.replace(",", " "),
+            f'<div class="source-real"><b>Extrait réel de la couche Gold</b> — '
+            f"{nb} réservations, produites par les modèles dbt de ce dépôt "
+            f"sur un jeu de données synthétique. Aucune donnée client.</div>",
             unsafe_allow_html=True,
         )
     else:
         st.markdown(
-            '<div class="source-demo"><b>Donnees de demonstration generees</b> — '
-            "l'extrait Gold n'est pas present dans <code>streamlit/data/</code>. "
-            "Les chiffres ci-dessous ne proviennent d'aucun calcul dbt. Le schema, lui, "
-            "est celui de la couche Gold.</div>",
+            '<div class="source-demo"><b>Données de démonstration générées</b> — '
+            "l'extrait Gold n'est pas présent dans <code>streamlit/data/</code>. "
+            "Les chiffres ci-dessous ne proviennent d'aucun calcul dbt. Le schéma, lui, "
+            "est bien celui de la couche Gold.</div>",
             unsafe_allow_html=True,
         )
 
@@ -302,7 +346,7 @@ def render_sidebar(obt, source):
         st.divider()
 
         st.markdown(
-            f"**Source :** {'extrait Gold' if source == 'extrait' else 'demonstration'}"
+            f"**Source :** {'extrait Gold' if source == 'extrait' else 'démonstration'}"
         )
         st.divider()
         st.markdown("### Filtres")
@@ -310,18 +354,18 @@ def render_sidebar(obt, source):
         filtres = {}
         if "BOOKING_DATE" in obt and obt["BOOKING_DATE"].notna().any():
             bornes = (obt["BOOKING_DATE"].min().date(), obt["BOOKING_DATE"].max().date())
-            filtres["periode"] = st.date_input("Periode", value=bornes,
+            filtres["periode"] = st.date_input("Période", value=bornes,
                                                min_value=bornes[0], max_value=bornes[1])
         for col, libelle in [("CITY", "Ville"), ("PROPERTY_TYPE", "Type de bien"),
-                             ("BOOKING_STATUS", "Statut")]:
+                             ("STATUT", "Statut")]:
             if col in obt:
                 valeurs = sorted(obt[col].dropna().unique().tolist())
                 filtres[col] = st.multiselect(libelle, valeurs, default=valeurs)
 
         st.divider()
         st.caption(
-            "Les filtres s'appliquent a tous les onglets. "
-            "Le taux d'annulation est calcule avant filtrage sur le statut."
+            "Les filtres s'appliquent à tous les onglets. "
+            "Le taux d'annulation est calculé avant le filtrage sur le statut."
         )
         return filtres
 
@@ -332,7 +376,7 @@ def appliquer_filtres(obt, filtres):
     if periode and isinstance(periode, (list, tuple)) and len(periode) == 2:
         debut, fin = pd.Timestamp(periode[0]), pd.Timestamp(periode[1]) + pd.Timedelta(days=1)
         df = df[(df["BOOKING_DATE"] >= debut) & (df["BOOKING_DATE"] < fin)]
-    for col in ("CITY", "PROPERTY_TYPE", "BOOKING_STATUS"):
+    for col in ("CITY", "PROPERTY_TYPE", "STATUT"):
         if col in filtres and col in df.columns and filtres[col]:
             df = df[df[col].isin(filtres[col])]
     return df
@@ -354,20 +398,20 @@ def render_kpis(df, avant_statut):
     )
 
     c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("Chiffre d'affaires", euro(ca), help="Reservations confirmees, frais inclus")
-    c2.metric("Revenu net", euro(net), help="Montant du sejour moins les frais")
-    c3.metric("Reservations", f"{len(confirmees):,}".replace(",", " "))
+    c1.metric("Chiffre d'affaires", euro(ca), help="Réservations confirmées, frais inclus")
+    c2.metric("Revenu net", euro(net), help="Montant du séjour moins les frais")
+    c3.metric("Réservations", f"{len(confirmees):,}".replace(",", " "))
     c4.metric("Panier moyen", euro(panier))
     c5.metric("Taux d'annulation", pourcent(annulation),
-              help="Calcule avant le filtre sur le statut, sinon il vaudrait 0 ou 100")
-    st.caption(f"Duree moyenne du sejour : {nuits:.1f} nuits")
+              help="Calculé avant le filtre sur le statut, sinon il vaudrait 0 ou 100 %")
+    st.caption(f"Durée moyenne du séjour : {nuits:.1f} nuits")
 
 
 # ─────────────────────────────────────────────
 # ONGLETS
 # ─────────────────────────────────────────────
 def onglet_temporel(df):
-    if manquant(df, ["BOOKING_MONTH_STR", "TOTAL_BOOKING_VALUE"], "Evolution temporelle"):
+    if manquant(df, ["BOOKING_MONTH_STR", "TOTAL_BOOKING_VALUE"], "Évolution temporelle"):
         return
     confirmees = df[df["BOOKING_STATUS"] == "confirmed"] if "BOOKING_STATUS" in df else df
 
@@ -381,19 +425,24 @@ def onglet_temporel(df):
     fig.add_bar(x=mensuel["BOOKING_MONTH_STR"], y=mensuel["ca"],
                 name="Chiffre d'affaires", marker_color=C_PRIMARY)
     fig.add_scatter(x=mensuel["BOOKING_MONTH_STR"], y=mensuel["reservations"],
-                    name="Reservations", yaxis="y2", mode="lines+markers",
+                    name="Réservations", yaxis="y2", mode="lines+markers",
                     line=dict(color=C_SECOND, width=3))
-    fig.update_layout(yaxis2=dict(overlaying="y", side="right", showgrid=False))
+    fig.update_layout(
+        xaxis_title="Mois",
+        yaxis_title="Chiffre d'affaires (€)",
+        yaxis2=dict(overlaying="y", side="right", showgrid=False, title="Réservations"),
+    )
     st.plotly_chart(styliser(fig, "Chiffre d'affaires et volume par mois"),
                     use_container_width=True)
 
-    if "BOOKING_STATUS" in df:
+    if "STATUT" in df:
         statut = (
-            df.groupby(["BOOKING_MONTH_STR", "BOOKING_STATUS"])
+            df.groupby(["BOOKING_MONTH_STR", "STATUT"])
             .size().reset_index(name="reservations")
         )
-        fig2 = px.bar(statut, x="BOOKING_MONTH_STR", y="reservations", color="BOOKING_STATUS",
-                      color_discrete_map={"confirmed": C_SECOND, "cancelled": C_ACCENT})
+        fig2 = px.bar(statut, x="BOOKING_MONTH_STR", y="reservations", color="STATUT",
+                      labels=LIBELLES,
+                      color_discrete_map={"Confirmée": C_SECOND, "Annulée": C_ACCENT})
         st.plotly_chart(styliser(fig2, "Confirmations et annulations par mois"),
                         use_container_width=True)
 
@@ -411,62 +460,65 @@ def onglet_logements(df, listings):
             confirmees.groupby("CITY")["TOTAL_BOOKING_VALUE"].sum()
             .sort_values(ascending=True).reset_index()
         )
-        fig = px.bar(par_ville, x="TOTAL_BOOKING_VALUE", y="CITY", orientation="h")
+        fig = px.bar(par_ville, x="TOTAL_BOOKING_VALUE", y="CITY", orientation="h",
+                     labels=LIBELLES)
         fig.update_traces(marker_color=C_PRIMARY)
         g1.plotly_chart(styliser(fig, "Chiffre d'affaires par ville"), use_container_width=True)
 
     if "PROPERTY_TYPE" in confirmees:
         repartition = confirmees["PROPERTY_TYPE"].value_counts().reset_index()
         repartition.columns = ["PROPERTY_TYPE", "reservations"]
-        fig = px.pie(repartition, names="PROPERTY_TYPE", values="reservations", hole=0.55)
-        g2.plotly_chart(styliser(fig, "Repartition par type de bien"), use_container_width=True)
+        fig = px.pie(repartition, names="PROPERTY_TYPE", values="reservations", hole=0.55,
+                     labels=LIBELLES)
+        g2.plotly_chart(styliser(fig, "Répartition par type de bien"), use_container_width=True)
 
     if listings is not None and {"PRICE_PER_NIGHT", "ACCOMMODATES"} <= set(listings.columns):
         fig = px.scatter(
-            listings, x="ACCOMMODATES", y="PRICE_PER_NIGHT",
+            listings, x="ACCOMMODATES", y="PRICE_PER_NIGHT", labels=LIBELLES,
             color="PRICE_PER_NIGHT_TAG" if "PRICE_PER_NIGHT_TAG" in listings else None,
             hover_data=[c for c in ["CITY", "PROPERTY_TYPE"] if c in listings.columns],
         )
-        st.plotly_chart(styliser(fig, "Prix a la nuit selon la capacite d'accueil"),
+        st.plotly_chart(styliser(fig, "Prix à la nuit selon la capacité d'accueil"),
                         use_container_width=True)
     else:
         st.info(
-            "Le nuage prix / capacite demande `PRICE_PER_NIGHT` dans `DIM_LISTINGS`. "
-            "Cette colonne est calculee en silver ; verifie qu'elle est bien remontee "
-            "dans le modele `listings`."
+            "Le nuage prix / capacité demande `PRICE_PER_NIGHT` dans `DIM_LISTINGS`. "
+            "Cette colonne est calculée en silver ; vérifie qu'elle est bien remontée "
+            "dans le modèle `listings`."
         )
 
 
 def onglet_hotes(df, hosts):
     if hosts is None or hosts.empty:
-        st.info("Dimension hotes indisponible.")
+        st.info("Dimension hôtes indisponible.")
         return
 
     c1, c2, c3 = st.columns(3)
-    c1.metric("Hotes", f"{len(hosts):,}".replace(",", " "))
+    c1.metric("Hôtes", f"{len(hosts):,}".replace(",", " "))
     if "IS_SUPERHOST" in hosts:
         c2.metric("Superhosts", pourcent(hosts["IS_SUPERHOST"].mean() * 100))
     if "RESPONSE_RATE" in hosts:
-        c3.metric("Taux de reponse moyen", pourcent(hosts["RESPONSE_RATE"].mean()))
+        c3.metric("Taux de réponse moyen", pourcent(hosts["RESPONSE_RATE"].mean()))
 
     g1, g2 = st.columns(2)
     if "HOST_RESPONSE_SEGMENT" in hosts:
         seg = hosts["HOST_RESPONSE_SEGMENT"].value_counts().reset_index()
         seg.columns = ["segment", "hotes"]
-        fig = px.bar(seg, x="segment", y="hotes")
+        fig = px.bar(seg, x="segment", y="hotes", labels=LIBELLES)
         fig.update_traces(marker_color=C_SECOND)
-        g1.plotly_chart(styliser(fig, "Segmentation par qualite de reponse"),
+        g1.plotly_chart(styliser(fig, "Segmentation par qualité de réponse"),
                         use_container_width=True)
 
     if "RESPONSE_RATE" in hosts:
-        fig = px.histogram(hosts, x="RESPONSE_RATE", nbins=20)
+        fig = px.histogram(hosts, x="RESPONSE_RATE", nbins=20, labels=LIBELLES)
         fig.update_traces(marker_color=C_PRIMARY)
-        g2.plotly_chart(styliser(fig, "Distribution du taux de reponse"),
+        fig.update_layout(yaxis_title="Hôtes")
+        g2.plotly_chart(styliser(fig, "Distribution du taux de réponse"),
                         use_container_width=True)
     else:
         g2.info(
             "`RESPONSE_RATE` absente de `DIM_HOSTS`. Elle existe en silver : "
-            "verifie qu'elle est remontee dans le modele `hosts`."
+            "vérifie qu'elle est remontée dans le modèle `hosts`."
         )
 
     if "HOST_ID" in df and "TOTAL_BOOKING_VALUE" in df:
@@ -476,7 +528,9 @@ def onglet_hotes(df, hosts):
         )
         if "HOST_NAME" in hosts:
             top = top.merge(hosts[["HOST_ID", "HOST_NAME"]], on="HOST_ID", how="left")
-        st.markdown("##### Dix premiers hotes par chiffre d'affaires")
+        top = top.rename(columns={"HOST_ID": "Hôte", "HOST_NAME": "Nom",
+                                  "TOTAL_BOOKING_VALUE": "Chiffre d'affaires"})
+        st.markdown("##### Dix premiers hôtes par chiffre d'affaires")
         st.dataframe(top, use_container_width=True, hide_index=True)
 
 
@@ -492,20 +546,21 @@ def onglet_revenu(df):
     fig = go.Figure(go.Waterfall(
         orientation="v",
         measure=["absolute", "relative", "relative", "total"],
-        x=["Montant des sejours", "Frais de menage", "Frais de service", "Valeur totale"],
+        x=["Montant des séjours", "Frais de ménage", "Frais de service", "Valeur totale"],
         y=[montant, menage, service, 0],
         connector=dict(line=dict(color=C_NEUTRAL)),
         increasing=dict(marker=dict(color=C_SECOND)),
         totals=dict(marker=dict(color=C_PRIMARY)),
     ))
-    st.plotly_chart(styliser(fig, "Decomposition de la valeur encaissee"),
+    fig.update_layout(yaxis_title="Euros")
+    st.plotly_chart(styliser(fig, "Décomposition de la valeur encaissée"),
                     use_container_width=True)
 
     if "NIGHTS_BOOKED" in confirmees:
         fig2 = px.box(confirmees, x="NIGHTS_BOOKED", y="TOTAL_BOOKING_VALUE",
-                      points=False)
+                      points=False, labels=LIBELLES)
         fig2.update_traces(marker_color=C_SECOND)
-        st.plotly_chart(styliser(fig2, "Valeur d'une reservation selon la duree du sejour"),
+        st.plotly_chart(styliser(fig2, "Valeur d'une réservation selon la durée du séjour"),
                         use_container_width=True)
 
 
@@ -516,23 +571,23 @@ def main():
     obt, listings, hosts, source = load_data()
 
     st.title("Airbnb Modern Data Pipeline")
-    st.caption("Couche Gold — indicateurs de reservation, de logement et d'hote")
+    st.caption("Couche Gold — indicateurs de réservation, de logement et d'hôte")
     bandeau_source(source, obt)
 
     filtres = render_sidebar(obt, source)
     # Le taux d'annulation se calcule sur un perimetre ou le statut n'est PAS filtre,
     # sinon il vaut mecaniquement 0 % ou 100 %.
-    sans_statut = appliquer_filtres(obt, {k: v for k, v in filtres.items() if k != "BOOKING_STATUS"})
+    sans_statut = appliquer_filtres(obt, {k: v for k, v in filtres.items() if k != "STATUT"})
     df = appliquer_filtres(obt, filtres)
 
     if df.empty:
-        st.warning("Aucune reservation ne correspond aux filtres.")
+        st.warning("Aucune réservation ne correspond aux filtres.")
         return
 
     render_kpis(df, sans_statut)
     st.divider()
 
-    t1, t2, t3, t4 = st.tabs(["Evolution", "Logements", "Hotes", "Revenu"])
+    t1, t2, t3, t4 = st.tabs(["Évolution", "Logements", "Hôtes", "Revenu"])
     with t1:
         onglet_temporel(df)
     with t2:
