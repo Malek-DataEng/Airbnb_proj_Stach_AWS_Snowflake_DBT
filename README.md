@@ -8,13 +8,13 @@
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 
-**Reference implementation of a production-grade ELT pipeline** — event-driven ingestion, medallion modeling, automated CI/CD and generated documentation.
+**Reference implementation of an end-to-end ELT pipeline** — event-driven ingestion, medallion modeling, automated CI/CD and generated documentation.
 
 ### 📚 **[Browse the generated dbt documentation →](https://malek-dataeng.github.io/Airbnb_proj_Stach_AWS_Snowflake_DBT/)**
 
 *Full lineage graph, model definitions and data catalog. No setup, no account required.*
 
-[🔗 Architecture](#️-architecture-overview) · [⚙️ CI/CD](#-cicd-for-data-pipelines) · [🗂️ Data model](#️-data-modeling--star-schema)
+[📊 Live dashboard](https://malek-dataeng-airbnb-kpis.streamlit.app) · [🔗 Architecture](#️-architecture-overview) · [⚙️ CI/CD](#-cicd-for-data-pipelines) · [🗂️ Data model](#️-data-modeling--star-schema)
 
 </div>
 
@@ -34,7 +34,7 @@ The pipeline was built, executed and validated end to end on AWS and Snowflake. 
 | 💻 **Source code** | **Complete.** Models, macros, snapshots, tests, ingestion SQL, CI/CD workflows |
 | 🏗️ **Architecture diagram and design decisions** | **Documented below** |
 | ☁️ **Running cloud pipeline** | **Decommissioned.** Reproducible from `Airbnb_DDL.sql` and `Ingest_Data_s3ToSnowf_tream_task_dbt.sql` |
-| 📊 **Streamlit dashboard** | **Demo dataset.** Reads a generated sample, not live warehouse data. See [Dashboard](#-streamlit-dashboard) |
+| 📊 **[Streamlit dashboard](https://malek-dataeng-airbnb-kpis.streamlit.app)** | **Live.** Reads a versioned CSV extract of the Gold layer — the real output of the dbt models in this repository. See [Dashboard](#-streamlit-dashboard) |
 
 The value of this repository is in the design decisions and the code, both of which are permanent. Anything that required a live warehouse is documented rather than demonstrated.
 
@@ -221,7 +221,11 @@ This gives **data-driven transformations** rather than time-driven ones: nothing
 
 An analytics dashboard built on the Gold layer: KPIs, revenue analysis, host performance and listing segmentation.
 
-> **It runs on a generated demo dataset**, not on live warehouse data. The Snowflake connection was removed along with the infrastructure. Figures are representative of the model's shape, not of real Airbnb activity.
+### **[Open the dashboard →](https://malek-dataeng-airbnb-kpis.streamlit.app)**
+
+> **Data.** The dashboard reads a CSV extract of the Gold layer, versioned under `streamlit/data/`. Those figures are the real output of the dbt models in this repository, computed on a **synthetic dataset** generated for demonstration purposes. No real or client data is involved. When the extract is absent, the app falls back to a generated dataset and says so on screen.
+
+There is no live Snowflake connection: the warehouse was decommissioned with the rest of the infrastructure, and the extract is what makes the dashboard readable without an account.
 
 The dashboard is included to show the last mile of the pipeline — what the Gold layer is actually *for*. The modeling logic behind every chart is documented in the [dbt docs](https://malek-dataeng.github.io/Airbnb_proj_Stach_AWS_Snowflake_DBT/).
 
